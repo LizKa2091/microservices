@@ -4,6 +4,7 @@ import { requestIdMiddleware } from './middleware/requestId';
 import { logger } from './lib/logger';
 import ordersRouter from './routes/orders';
 import { errorHandler } from './middleware/errorHandler';
+import { requestLogger } from './middleware/requestLogger';
 
 export function createServer() {
    const app = express();
@@ -19,6 +20,7 @@ export function createServer() {
    app.use('/v1/orders', ordersRouter);
 
    app.use(errorHandler);
+   app.use(requestLogger);
 
    return app;
 }
