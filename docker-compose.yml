@@ -1,0 +1,29 @@
+version: '3.9'
+
+services:
+  api-gateway:
+    build: ./api_gateway
+    container_name: api-gateway
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./api_gateway/.env
+    depends_on:
+      - service-users
+      - service-orders
+
+  service-users:
+    build: ./service_users
+    container_name: service-users
+    ports:
+      - "4001:4001"
+    env_file:
+      - ./service_users/.env
+
+  service-orders:
+    build: ./service_orders
+    container_name: service-orders
+    ports:
+      - "4002:4002"
+    env_file:
+      - ./service_orders/.env
