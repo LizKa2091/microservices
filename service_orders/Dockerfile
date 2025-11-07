@@ -2,7 +2,9 @@ FROM node:18-alpine
 
 WORKDIR /app
 COPY package*.json ./
-RUN npm install --omit=dev
+
+RUN npm install
 
 COPY . .
-CMD ["npm", "run", "start"]
+RUN npx tsc
+CMD ["node", "dist/index.js"]
