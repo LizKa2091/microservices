@@ -45,7 +45,9 @@ app.use('/v1/health', healthRouter);
 function checkJwtForProtected(req: any, res: any, next: any) {
    const path = req.path;
 
-   if (req.method === 'POST' && (path === '/v1/users/register' || path === '/v1/users/login')) return next();
+   if (req.method === 'POST' && (req.path === '/register' || req.path === '/login')) {
+      return next();
+   }
 
    const auth = req.headers['authorization'] || '';
    const parts = (auth as string).split(' ');
@@ -72,6 +74,7 @@ function onProxyReq(proxyReq: any, req: any) {
       proxyReq.setHeader('Content-Type', 'application/json');
       proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
       proxyReq.write(bodyData);
+      proxyReq.end()
    }
 }
 
