@@ -7,6 +7,11 @@ info:
     Responses follow the envelope: { success: boolean, data?: any, error?: { code, message } }.
 servers:
   - url: http://localhost:3000
+    description: API Gateway (entry point)
+  - url: http://localhost:4001
+    description: Users Service (direct access, bypassing gateway)
+  - url: http://localhost:4002
+    description: Orders Service (direct access, bypassing gateway)
 tags:
   - name: health
     description: Health checks
