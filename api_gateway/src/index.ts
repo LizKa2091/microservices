@@ -8,6 +8,14 @@ import rateLimit from 'express-rate-limit';
 import cors from 'cors';
 import jwt from 'jsonwebtoken';
 import { requestLogger } from './middleware/requestLogger';
+import { ClientRequest } from 'http';
+
+interface ProxyOptions {
+   target: string;
+   changeOrigin?: boolean;
+   pathRewrite?: Record<string, string>;
+   onProxyReq?: (proxyReq: ClientRequest, req: Request, res: any) => void;
+}
 
 const USERS_URL = process.env.USERS_URL || 'http://localhost:4001';
 const ORDERS_URL = process.env.ORDERS_URL || 'http://localhost:4002';
@@ -34,38 +42,12 @@ app.use(requestLogger);
 
 app.use('/v1/health', healthRouter);
 
-// Proxy routes
-app.use(
-   '/v1/users',
-   createProxyMiddleware({
-      target: USERS_URL,
-      changeOrigin: true,
-      pathRewrite: { '^/v1/users': '/v1/users' },
-      onProxyReq(proxyReq: any, req: any) {
-         const rid = (req as any).requestId;
-         if (rid) proxyReq.setHeader('X-Request-ID', rid);
-      },
-   } as any)
-);
-
-app.use(
-   '/v1/orders',
-   createProxyMiddleware({
-      target: ORDERS_URL,
-      changeOrigin: true,
-      pathRewrite: { '^/v1/orders': '/v1/orders' },
-      onProxyReq(proxyReq: any, req: any) {
-         const rid = (req as any).requestId;
-         if (rid) proxyReq.setHeader('X-Request-ID', rid);
-      }
-   } as any)
-);
-
 function checkJwtForProtected(req: any, res: any, next: any) {
-   // allow public: POST /v1/users/register and POST /v1/users/login
    const path = req.path;
 
-   if (req.method === 'POST' && (path === '/v1/users/register' || path === '/v1/users/login')) return next();
+   if (req.method === 'POST' && (req.path === '/register' || req.path === '/login')) {
+      return next();
+   }
 
    const auth = req.headers['authorization'] || '';
    const parts = (auth as string).split(' ');
@@ -83,30 +65,35 @@ function checkJwtForProtected(req: any, res: any, next: any) {
    }
 }
 
-app.use('/v1/users', checkJwtForProtected, createProxyMiddleware({
+function onProxyReq(proxyReq: any, req: any) {
+   if (req.requestId) proxyReq.setHeader('X-Request-ID', req.requestId);
+   if (req.headers.authorization) proxyReq.setHeader('Authorization', req.headers.authorization);
+
+   if (req.body && ['POST', 'PUT', 'PATCH'].includes(req.method)) {
+      const bodyData = JSON.stringify(req.body);
+      proxyReq.setHeader('Content-Type', 'application/json');
+      proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
+      proxyReq.write(bodyData);
+      proxyReq.end()
+   }
+}
+
+const usersProxy: ProxyOptions = {
    target: USERS_URL,
    changeOrigin: true,
    pathRewrite: { '^/v1/users': '/v1/users' },
-   onProxyReq(proxyReq: any, req: any) {
-      const rid = (req as any).requestId;
-      if (rid) proxyReq.setHeader('X-Request-ID', rid);
-      // forward authorization header (so services can re-check token if needed)
-      const auth = req.headers['authorization'];
-      if (auth) proxyReq.setHeader('Authorization', auth as string);
-   },
-} as any));
+   onProxyReq,
+};
 
-app.use('/v1/orders', checkJwtForProtected, createProxyMiddleware({
+const ordersProxy: ProxyOptions = {
    target: ORDERS_URL,
    changeOrigin: true,
    pathRewrite: { '^/v1/orders': '/v1/orders' },
-   onProxyReq(proxyReq: any, req: any) {
-      const rid = (req as any).requestId;
-      if (rid) proxyReq.setHeader('X-Request-ID', rid);
-      const auth = req.headers['authorization'];
-      if (auth) proxyReq.setHeader('Authorization', auth as string);
-   }
-} as any));
+   onProxyReq,
+};
+
+app.use('/v1/users', checkJwtForProtected, createProxyMiddleware(usersProxy));
+app.use('/v1/orders', checkJwtForProtected, createProxyMiddleware(ordersProxy));
 
 app.listen(port, () => {
    console.log(`api-gateway listening on ${port}`);
