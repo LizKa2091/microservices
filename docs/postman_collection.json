@@ -17,8 +17,8 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{baseUrl}}/v1/health",
-          "host": ["{{baseUrl}}"],
+          "raw": "{{usersUrl}}/v1/health",
+          "host": ["{{usersUrl}}"],
           "path": ["v1", "health"]
         }
       },
@@ -71,6 +71,34 @@
             }
           ]
         },
+                {
+          "name": "Register (duplicate)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"123456\",\n  \"name\": \"Tester\"\n}"
+            },
+            "url": {
+              "raw": "{{usersUrl}}/v1/users/register",
+              "host": ["{{usersUrl}}"],
+              "path": ["v1", "users", "register"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Duplicate user -> 409', () => pm.response.to.have.status(409));",
+                  "const json = pm.response.json();",
+                  "pm.expect(json.success).to.eql(false);"
+                ]
+              }
+            }
+          ]
+        },
         {
           "name": "Login",
           "request": {
@@ -100,6 +128,32 @@
                   "pm.environment.set('jwtToken', json.data.token);"
                 ],
                 "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login (wrong password)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"wrongpass\"\n}"
+            },
+            "url": {
+              "raw": "{{usersUrl}}/v1/users/login",
+              "host": ["{{usersUrl}}"],
+              "path": ["v1", "users", "login"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Invalid credentials -> 401', () => pm.response.to.have.status(401));"
+                ]
               }
             }
           ]
@@ -253,6 +307,28 @@
                   "pm.expect(pm.response.json().success).to.eql(true);"
                 ],
                 "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Order (invalid id)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{jwtToken}}" }],
+            "url": {
+              "raw": "{{ordersUrl}}/v1/orders/invalid-id",
+              "host": ["{{ordersUrl}}"],
+              "path": ["v1", "orders", "invalid-id"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Not found -> 404', () => pm.response.to.have.status(404));"
+                ]
               }
             }
           ]
