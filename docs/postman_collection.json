@@ -6,14 +6,9 @@
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    {
-      "key": "baseUrl",
-      "value": "http://localhost:3000"
-    },
-    {
-      "key": "jwtToken",
-      "value": ""
-    }
+    { "key": "usersUrl", "value": "http://localhost:4001" },
+    { "key": "ordersUrl", "value": "http://localhost:4002" },
+    { "key": "jwtToken", "value": "" }
   ],
   "item": [
     {
@@ -53,11 +48,11 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"test{{timestamp}}@example.com\",\n  \"password\": \"123456\",\n  \"name\": \"Tester\"\n}"
+              "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"123456\",\n  \"name\": \"Tester\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/v1/users/register",
-              "host": ["{{baseUrl}}"],
+              "raw": "{{usersUrl}}/v1/users/register",
+              "host": ["{{usersUrl}}"],
               "path": ["v1", "users", "register"]
             }
           },
@@ -88,8 +83,8 @@
               "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"123456\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/v1/users/login",
-              "host": ["{{baseUrl}}"],
+              "raw": "{{usersUrl}}/v1/users/login",
+              "host": ["{{usersUrl}}"],
               "path": ["v1", "users", "login"]
             }
           },
@@ -117,8 +112,8 @@
               { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
             ],
             "url": {
-              "raw": "{{baseUrl}}/v1/users/me",
-              "host": ["{{baseUrl}}"],
+              "raw": "{{usersUrl}}/v1/users/me",
+              "host": ["{{usersUrl}}"],
               "path": ["v1", "users", "me"]
             }
           },
@@ -150,8 +145,8 @@
               "raw": "{ \"name\": \"Updated Tester\" }"
             },
             "url": {
-              "raw": "{{baseUrl}}/v1/users/me",
-              "host": ["{{baseUrl}}"],
+              "raw": "{{usersUrl}}/v1/users/me",
+              "host": ["{{usersUrl}}"],
               "path": ["v1", "users", "me"]
             }
           },
@@ -186,8 +181,8 @@
               "raw": "{ \"items\": [ { \"productId\": \"sku-123\", \"quantity\": 2, \"price\": 10.5 } ] }"
             },
             "url": {
-              "raw": "{{baseUrl}}/v1/orders",
-              "host": ["{{baseUrl}}"],
+              "raw": "{{ordersUrl}}/v1/orders",
+              "host": ["{{ordersUrl}}"],
               "path": ["v1", "orders"]
             }
           },
@@ -214,8 +209,8 @@
               { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
             ],
             "url": {
-              "raw": "{{baseUrl}}/v1/orders?page=1&limit=5",
-              "host": ["{{baseUrl}}"],
+              "raw": "{{ordersUrl}}/v1/orders?page=1&limit=5",
+              "host": ["{{ordersUrl}}"],
               "path": ["v1", "orders"],
               "query": [
                 { "key": "page", "value": "1" },
@@ -244,8 +239,8 @@
               { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
             ],
             "url": {
-              "raw": "{{baseUrl}}/v1/orders/{{orderId}}",
-              "host": ["{{baseUrl}}"],
+              "raw": "{{ordersUrl}}/v1/orders/{{orderId}}",
+              "host": ["{{ordersUrl}}"],
               "path": ["v1", "orders", "{{orderId}}"]
             }
           },
@@ -275,8 +270,8 @@
               "raw": "{ \"status\": \"done\" }"
             },
             "url": {
-              "raw": "{{baseUrl}}/v1/orders/{{orderId}}/status",
-              "host": ["{{baseUrl}}"],
+              "raw": "{{ordersUrl}}/v1/orders/{{orderId}}/status",
+              "host": ["{{ordersUrl}}"],
               "path": ["v1", "orders", "{{orderId}}", "status"]
             }
           },
@@ -301,8 +296,8 @@
               { "key": "Authorization", "value": "Bearer {{jwtToken}}" }
             ],
             "url": {
-              "raw": "{{baseUrl}}/v1/orders/{{orderId}}",
-              "host": ["{{baseUrl}}"],
+              "raw": "{{ordersUrl}}/v1/orders/{{orderId}}",
+              "host": ["{{ordersUrl}}"],
               "path": ["v1", "orders", "{{orderId}}"]
             }
           },
