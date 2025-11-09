@@ -1,9 +1,9 @@
-import { PrismaClient, User } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 export const userRepo = {
-   async create(data: Omit<User, "id" | "createdAt" | "updatedAt">) {
+   async create(data: any) {
       return prisma.user.create({ data });
    },
 
@@ -15,7 +15,7 @@ export const userRepo = {
       return prisma.user.findUnique({ where: { id } });
    },
 
-   async update(id: string, data: Partial<User>) {
+   async update(id: string, data: any) {
       return prisma.user.update({ where: { id }, data });
    },
 
