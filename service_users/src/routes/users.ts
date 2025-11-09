@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { userRepo } from '../repo/inMemoryUserRepo';
+import { userRepo } from '../repo/prismaUserRepo';
 import { logger } from '../lib/logger';
 
 const router = Router();
@@ -136,7 +136,7 @@ router.get('/', authMiddleware, requireRole('admin'), async (req: any, res, next
       const page = parseInt((req.query.page as string) || '1', 10);
       const limit = parseInt((req.query.limit as string) || '10', 10);
       const filterEmail = req.query.email as string | undefined;
-      const data = await (require('../repo/inMemoryUserRepo').userRepo).list({ page, limit, filterEmail });
+      const data = await userRepo.list({ page, limit, filterEmail });
       
       sendOk(res, data);
    } catch (err) {
