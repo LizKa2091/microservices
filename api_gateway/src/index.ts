@@ -9,6 +9,9 @@ import cors from 'cors';
 import jwt from 'jsonwebtoken';
 import { requestLogger } from './middleware/requestLogger';
 import { ClientRequest } from 'http';
+import dotenv from 'dotenv';
+
+dotenv.config({ path: `.env.${process.env.NODE_ENV || 'development'}` });
 
 interface ProxyOptions {
    target: string;

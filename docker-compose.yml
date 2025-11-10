@@ -20,12 +20,15 @@ services:
       retries: 5
 
   service-users:
-    build: ./service_users
+    build:
+      context: ./service_users
+      args:
+        NODE_ENV: ${NODE_ENV:-development}
     container_name: service-users
     ports:
       - "4001:4001"
     env_file:
-      - ./service_users/.env
+      - ./service_users/.env.${NODE_ENV:-development}
     depends_on:
       postgres:
         condition: service_healthy
@@ -36,12 +39,15 @@ services:
       "
 
   service-orders:
-    build: ./service_orders
+    build:
+      context: ./service_orders
+      args:
+        NODE_ENV: ${NODE_ENV:-development}
     container_name: service-orders
     ports:
       - "4002:4002"
     env_file:
-      - ./service_orders/.env
+      - ./service_orders/.env.${NODE_ENV:-development}
     depends_on:
       postgres:
         condition: service_healthy
@@ -52,12 +58,15 @@ services:
       "
 
   api-gateway:
-    build: ./api_gateway
+    build:
+      context: ./api_gateway
+      args:
+        NODE_ENV: ${NODE_ENV:-development}
     container_name: api-gateway
     ports:
       - "3000:3000"
     env_file:
-      - ./api_gateway/.env
+      - ./api_gateway/.env.${NODE_ENV:-development}
     depends_on:
       service-users:
         condition: service_started
